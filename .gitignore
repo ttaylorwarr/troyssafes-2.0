@@ -1,0 +1,8 @@
+node_modules/
+.wrangler/
+.env
+.env.*
+.dev.vars
+*.log
+*-data*.json
+*.tmp
