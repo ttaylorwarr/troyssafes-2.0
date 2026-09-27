@@ -1,1 +1,13 @@
-{"name":"troyssafes-preview","private":true,"type":"module","scripts":{"start":"node server.mjs"}}
+{
+  "name": "troyssafes-preview",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.142.0"
+  }
+}
