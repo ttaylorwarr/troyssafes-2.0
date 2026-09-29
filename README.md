@@ -23,3 +23,9 @@ Admins create staff IDs in Accounts and privately give each new user their invit
 `npm start` runs the original Node.js preview at `http://127.0.0.1:4173` with a separate local JSON database. Optional local sample passwords can be supplied with `TROYS_DEMO_PASSWORD` when initializing a fresh database. This local server is not the Cloudflare production backend.
 
 Runtime data, credentials, and local test records are excluded from Git.
+
+## Hotel rooms and credit
+
+The designated account (OWNER_USER_ID) is the sole Owner; Owner cannot be assigned in account forms. Guests access Rooms and Credit without staff data. Only Owner manages room information, nightly USD prices, JPEG/PNG/WebP uploads (resized in the browser), and manual credit additions. Owner and Manager review bookings. Pending requests reserve credit and room dates; rejection or guest cancellation returns credit once. Approval reveals a generated 8-digit PIN. PINs are website booking codes, not a physical lock integration. Approved bookings cannot currently be cancelled through the interface.
+
+Run `node tests/hotel.test.mjs` for hotel business-rule checks. The deployed Worker is the supported hotel backend; the legacy local Node preview does not include hotel features.

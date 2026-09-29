@@ -3,8 +3,33 @@
   "name": "troyssafes-2-0",
   "main": "worker.mjs",
   "compatibility_date": "2026-09-01",
-  "compatibility_flags": ["nodejs_compat"],
-  "assets": {"directory": "./public", "binding": "ASSETS", "run_worker_first": ["/api/*"]},
-  "durable_objects": {"bindings": [{"name": "STAFF", "class_name": "StaffStore"}]},
-  "migrations": [{"tag": "v1", "new_sqlite_classes": ["StaffStore"]}]
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*"
+    ]
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "STAFF",
+        "class_name": "StaffStore"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "StaffStore"
+      ]
+    }
+  ],
+  "vars": {
+    "OWNER_USER_ID": "1001"
+  }
 }
