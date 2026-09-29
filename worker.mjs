@@ -21,6 +21,7 @@ export class StaffStore extends DurableObject {
   const path=new URL(request.url).pathname;
   function role(u,allowed){if(!allowed.includes(u.role))fail(403,'This page is not available for your role.')}
 function active(u){return db.punches.find(p=>p.userId===u.id&&!p.out)}
+function invitationCode(value){if(value!==undefined&&typeof value!=='string')fail(400,'Invitation code must be text.');const code=(value||'').trim();if(code&&!/^[A-Za-z0-9]{10}$/.test(code))fail(400,'Invitation code must be exactly 10 letters or numbers.');return code||randomBytes(5).toString('hex')}
 function accountView(u){return {...safeUser(u),activated:!!u.password,inviteCode:u.password?undefined:u.inviteCode}}
 function accountFields(b){
  const name=typeof b.name==='string'?b.name.trim():'',email=typeof b.email==='string'?b.email.trim().toLowerCase():'';
@@ -56,14 +57,14 @@ function newSession(u,res){const token=randomBytes(32).toString('hex');sessions.
   role(u,['admin']);const fields=accountFields(b),id=typeof b.id==='string'?b.id.trim():'';
   if(!/^\d{1,12}$/.test(id))fail(400,'User ID must contain 1–12 digits.');
   if(db.users.some(x=>x.id===id||x.email.toLowerCase()===fields.email))fail(409,'This ID or email is already used. Choose a different one.');
-  const account={id,...fields,avatar:'',password:null,inviteCode:randomBytes(5).toString('hex')};db.users.push(account);save();reply(res,201,{account:accountView(account)});return;
+  const account={id,...fields,avatar:'',password:null,inviteCode:invitationCode(b.inviteCode)};db.users.push(account);save();reply(res,201,{account:accountView(account)});return;
  }
  if(path==='/api/accounts/edit'&&req.method==='POST'){
   role(u,['admin']);const account=db.users.find(x=>x.id===b.id&&!x.deletedAt);if(!account)fail(404,'Account not found.');const fields=accountFields(b);
   if(account.id===u.id&&fields.role!=='admin')fail(409,'You cannot remove your own Admin role. Ask another Admin to change it.');
   if(fields.role==='manager'&&active(account))fail(409,'This user must clock out before changing to Manager.');
   if(db.users.some(x=>x.id!==account.id&&x.email.toLowerCase()===fields.email))fail(409,'This email is already used.');
-  const roleChanged=account.role!==fields.role;Object.assign(account,fields);save();
+  const nextInvite=!account.password&&Object.hasOwn(b,'inviteCode')?invitationCode(b.inviteCode):account.inviteCode;const roleChanged=account.role!==fields.role;Object.assign(account,fields);if(!account.password)account.inviteCode=nextInvite;save();
   if(roleChanged)for(const [key,value]of sessions)if(value.id===account.id)sessions.delete(key);
   reply(res,200,{account:accountView(account)});return;
  }
