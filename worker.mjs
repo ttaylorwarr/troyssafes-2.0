@@ -16,6 +16,7 @@ export class StaffStore extends DurableObject {
   for(const [key,value] of sessions)if(value.expires<Date.now())sessions.delete(key);
   for(const [key,value] of attempts)if(Date.now()-value.at>60000)attempts.delete(key);
   let dirty=false;const save=()=>{dirty=true};const res=null;
+  for(const account of db.users){if(!account.password&&!account.deletedAt&&typeof account.inviteCode==='string'&&account.inviteCode.length>10){account.inviteCode=account.inviteCode.slice(0,10);save();}}
   const req={method:request.method,headers:{cookie:request.headers.get('Cookie')},socket:{remoteAddress:request.headers.get('CF-Connecting-IP')||'local'}};
   const path=new URL(request.url).pathname;
   function role(u,allowed){if(!allowed.includes(u.role))fail(403,'This page is not available for your role.')}
@@ -55,7 +56,7 @@ function newSession(u,res){const token=randomBytes(32).toString('hex');sessions.
   role(u,['admin']);const fields=accountFields(b),id=typeof b.id==='string'?b.id.trim():'';
   if(!/^\d{1,12}$/.test(id))fail(400,'User ID must contain 1–12 digits.');
   if(db.users.some(x=>x.id===id||x.email.toLowerCase()===fields.email))fail(409,'This ID or email is already used. Choose a different one.');
-  const account={id,...fields,avatar:'',password:null,inviteCode:randomBytes(24).toString('hex')};db.users.push(account);save();reply(res,201,{account:accountView(account)});return;
+  const account={id,...fields,avatar:'',password:null,inviteCode:randomBytes(5).toString('hex')};db.users.push(account);save();reply(res,201,{account:accountView(account)});return;
  }
  if(path==='/api/accounts/edit'&&req.method==='POST'){
   role(u,['admin']);const account=db.users.find(x=>x.id===b.id&&!x.deletedAt);if(!account)fail(404,'Account not found.');const fields=accountFields(b);
